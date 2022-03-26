@@ -85,28 +85,13 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                filter(newText);
+                adapter.getFilter().filter(newText);
                 return false;
             }
         });
         return true;
     }
 
-    private void filter(String text) {
-        // creating a new array list to filter our data.
-        ArrayList<EmployeeModel> filteredlist = new ArrayList<>();
-
-        for (EmployeeModel item : employeeModalArrayList) {
-            if (item.getName().toLowerCase().contains(text.toLowerCase())) {
-                filteredlist.add(item);
-            }
-        }
-        if (filteredlist.isEmpty()) {
-            Toast.makeText(this, "No Data Found..", Toast.LENGTH_SHORT).show();
-        } else {
-            adapter.filterList(filteredlist);
-        }
-    }
 
     /** Fetch Data from API call **/
     private void getEmployeeData(){

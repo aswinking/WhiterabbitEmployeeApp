@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,27 +24,22 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
-public class EmployeeAdapter extends RecyclerView.Adapter<EmployeeAdapter.ViewHolder> {
+public class EmployeeAdapter extends RecyclerView.Adapter<EmployeeAdapter.ViewHolder> implements Filterable {
 
     // creating a variable for array list and context.
     private ArrayList<EmployeeModel> employeeModalArrayList;
+    private ArrayList<EmployeeModel> FullList;
+
     private Context context;
     private DBHandler dbHandler;
+
 
     // creating a constructor for our variables.
     public EmployeeAdapter(ArrayList<EmployeeModel> employeeModalArrayList, Context context) {
         this.employeeModalArrayList = employeeModalArrayList;
         this.context = context;
+        FullList = new ArrayList<>(employeeModalArrayList);
 
-    }
-
-    public void filterList(ArrayList<EmployeeModel> filterllist) {
-        // below line is to add our filtered
-        // list in our course array list.
-        employeeModalArrayList = filterllist;
-        // below line is to notify our adapter
-        // as change in recycler view data.
-        notifyDataSetChanged();
     }
 
     @NonNull
@@ -95,4 +92,36 @@ public class EmployeeAdapter extends RecyclerView.Adapter<EmployeeAdapter.ViewHo
             itemCardView = itemView.findViewById(R.id.MainCV);
         }
     }
+
+    @Override
+    public Filter getFilter() {
+        return Searched_Filter;
+    }
+
+    private Filter Searched_Filter = new Filter() {
+        @Override
+        protected FilterResults performFiltering(CharSequence constraint) {
+            ArrayList<EmployeeModel> filteredList = new ArrayList<>();
+            if (constraint == null || constraint.length() == 0) {
+                filteredList.addAll(FullList);
+            } else {
+                String filterPattern = constraint.toString().toLowerCase().trim();
+                for (EmployeeModel item : FullList) {
+                    if (item.getName().toLowerCase().contains(filterPattern)) {
+                        filteredList.add(item);
+                    }
+                }
+            }
+            FilterResults results = new FilterResults();
+            results.values = filteredList;
+            return results;
+        }
+        @Override
+        protected void publishResults(CharSequence constraint, FilterResults results) {
+            employeeModalArrayList.clear();
+            employeeModalArrayList.addAll((ArrayList) results.values);
+            notifyDataSetChanged();
+        }
+    };
 }
+
